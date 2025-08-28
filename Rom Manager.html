@@ -23,7 +23,7 @@
     margin: 0;
     background: linear-gradient(180deg, #0b0b0f, #121217);
     color: #e6eef6;
-    font-size: 15px;
+    font-size: 15px; /* Aumentato da ~13px a 15px */
   }
   header {
     padding: 20px;
@@ -31,7 +31,7 @@
   }
   h1 {
     margin: 0;
-    font-size: 22px;
+    font-size: 22px; /* Aumentato da 20px a 22px */
   }
   .container {
     max-width: 1200px;
@@ -48,7 +48,7 @@
   }
   input[type=file] {
     padding: 6px;
-    font-size: 14px;
+    font-size: 14px; /* Aumentato */
   }
   button {
     background: var(--accent);
@@ -58,7 +58,7 @@
     border-radius: 6px;
     cursor: pointer;
     transition: opacity 0.2s;
-    font-size: 14px;
+    font-size: 14px; /* Aumentato */
   }
   button:hover {
     opacity: 0.9;
@@ -83,20 +83,20 @@
   }
   .info {
     color: var(--muted);
-    font-size: 14px;
+    font-size: 14px; /* Aumentato da 13px a 14px */
     margin-top: 6px;
   }
   table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 12px;
-    font-size: 14px;
+    font-size: 14px; /* Aumentato */
   }
   th, td {
     padding: 8px;
     border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
     text-align: left;
-    font-size: 14px;
+    font-size: 14px; /* Aumentato da 13px a 14px */
   }
   th {
     color: var(--muted);
@@ -108,7 +108,7 @@
     border-radius: 999px;
     background: #0b1220;
     border: 1px solid rgba(255, 255, 255, 0.02);
-    font-size: 13px;
+    font-size: 13px; /* Aumentato da 12px a 13px */
   }
   .controls {
     display: flex;
@@ -120,7 +120,7 @@
     margin-left: auto;
   }
   .small {
-    font-size: 13px;
+    font-size: 13px; /* Aumentato da 12px a 13px */
     color: var(--muted);
   }
   .export-row {
@@ -133,7 +133,7 @@
     text-align: center;
     padding: 10px;
     color: var(--muted);
-    font-size: 13px;
+    font-size: 13px; /* Aumentato da 12px a 13px */
   }
   .console {
     font-weight: 600;
@@ -175,11 +175,11 @@
     width: 100%;
     max-height: 80vh;
     overflow-y: auto;
-    font-size: 15px;
+    font-size: 15px; /* Aumentato */
   }
   .modal h3 {
     margin-top: 0;
-    font-size: 18px;
+    font-size: 18px; /* Aumentato */
   }
   .modal-buttons {
     display: flex;
@@ -204,7 +204,7 @@
     background: var(--confidence-low);
   }
   .console-info {
-    font-size: 12px;
+    font-size: 12px; /* Aumentato da 11px a 12px */
     color: var(--muted);
     margin-top: 2px;
   }
@@ -245,10 +245,10 @@
   .result-title {
     font-weight: bold;
     margin-bottom: 5px;
-    font-size: 15px;
+    font-size: 15px; /* Aumentato */
   }
   .result-platform {
-    font-size: 13px;
+    font-size: 13px; /* Aumentato da 12px a 13px */
     color: var(--muted);
   }
   .manual-input {
@@ -262,7 +262,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     color: white;
-    font-size: 14px;
+    font-size: 14px; /* Aumentato */
   }
   .selected {
     background-color: var(--selection);
@@ -284,7 +284,7 @@
     padding: 8px;
     background: rgba(255, 152, 0, 0.1);
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 14px; /* Aumentato da 13px a 14px */
     display: none;
   }
   @media (max-width: 760px) {
@@ -314,7 +314,7 @@
     </label>
     <div style="width:10px"></div>
     <label>
-      <div class="badge">2) Filtra estensiones (separate da spazio)</div><br>
+      <div class="badge">2) Filtra estensioni (separate da spazio)</div><br>
       <input id="extFilter" placeholder=".nes .smc .gba .iso" />
     </label>
     <div class="search">
@@ -426,12 +426,12 @@
 
 <script>
 // Configurazione e costanti
-const GIANT_BOMB_API_KEY = "f61574b7a9be9caec4e6ec466bef7c37a0728fc3";
+const GIANT_BOMB_API_KEY = "f61574b7a9be9caec4e6ec466bef7c37a0728fc3"; // La tua nuova API key
 const GIANT_BOMB_API_URL = "https://www.giantbomb.com/api/search/";
 
 // Lista di proxy CORS alternativi
 const CORS_PROXIES = [
-  "",
+  "", // Tentativo diretto (se supportato dal browser)
   "https://api.allorigins.win/raw?url=",
   "https://corsproxy.io/?",
   "https://cors-anywhere.herokuapp.com/",
@@ -624,7 +624,7 @@ function detectConsole(filename, fullpath) {
     }
   }
 
-  // 3. Gestione estensiones ambigue
+  // 3. Gestione estensioni ambigue
   if (EXTENSION_PRIORITY[ext]) {
     for (const console of EXTENSION_PRIORITY[ext]) {
       for (const [k, v] of Object.entries(KEYWORD_HINTS)) {
@@ -826,7 +826,6 @@ document.getElementById('saveEdit').onclick = () => {
     files[currentEditIndex].console = newConsole;
     files[currentEditIndex].confidence = "manual";
     renderTable(files);
-    status.textContent = `Console modificata per ${files[currentEditIndex].cleanName}`;
   }
   editModal.style.display = 'none';
 };
@@ -842,7 +841,7 @@ document.getElementById('fetchMetadata').onclick = async () => {
   status.textContent = 'Ricerca metadati in corso...';
   progressBar.style.width = '0%';
   
-  const filesToProcess = files.slice(0, 10);
+  const filesToProcess = files.slice(0, 10); // Limita a 10 richieste
   let processed = 0;
   
   for (const f of filesToProcess) {
@@ -857,6 +856,7 @@ document.getElementById('fetchMetadata').onclick = async () => {
       const data = await resp.json();
       if (data && data.results && data.results.length > 0) {
         f.metadata = data.results[0];
+        // Aggiorna la console se disponibile nei metadati
         if (f.metadata.platforms && f.metadata.platforms.length > 0) {
           f.console = f.metadata.platforms[0].name;
           f.confidence = "api";
@@ -871,6 +871,7 @@ document.getElementById('fetchMetadata').onclick = async () => {
       progressBar.style.width = `${(processed / filesToProcess.length) * 100}%`;
     }
     
+    // Aspetta un po' tra una richiesta e l'altra per evitare rate limiting
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   
@@ -890,7 +891,7 @@ document.getElementById('tryCovers').onclick = async () => {
   status.textContent = 'Download cover in corso...';
   progressBar.style.width = '0%';
   
-  const filesWithMetadata = files.filter(f => f.metadata).slice(0, 5);
+  const filesWithMetadata = files.filter(f => f.metadata).slice(0, 5); // Limita a 5 richieste
   let processed = 0;
   
   for (const f of filesWithMetadata) {
@@ -906,12 +907,13 @@ document.getElementById('tryCovers').onclick = async () => {
       }
     } catch (e) {
       console.warn('Download cover fallito', e);
-      status.textContent = `Errore durante il download cover per ${f.cleanName}: ${e.message}`;
+      status.textContent = `Errore durante il download cover per ${f.cleanName}: ${error.message}`;
     } finally {
       processed++;
       progressBar.style.width = `${(processed / filesWithMetadata.length) * 100}%`;
     }
     
+    // Aspetta un po' tra una richiesta e l'altra
     await new Promise(resolve => setTimeout(resolve, 300));
   }
   
@@ -922,6 +924,7 @@ document.getElementById('tryCovers').onclick = async () => {
 
 // Ricerca manuale metadati
 document.getElementById('manualSearchBtn').onclick = () => {
+  // Trova il primo file senza metadati
   const fileWithoutMetadata = files.findIndex(f => !f.metadata);
   if (fileWithoutMetadata === -1) {
     alert('Tutti i file hanno già metadati!');
@@ -940,8 +943,12 @@ function showMetadataModal(idx) {
   manualTitle.value = item.cleanName;
   manualPlatform.value = item.console;
   
+  // Pulisci i risultati precedenti
   searchResults.innerHTML = '';
+  
   metadataModal.style.display = 'flex';
+  
+  // Esegui una ricerca automatica
   performSearchRequest();
 }
 
@@ -1013,11 +1020,13 @@ async function selectSearchResult(result) {
   if (currentMetadataIndex !== null) {
     files[currentMetadataIndex].metadata = result;
     
+    // Aggiorna anche la console se disponibile
     if (result.platforms && result.platforms.length > 0) {
       files[currentMetadataIndex].console = result.platforms[0].name;
       files[currentMetadataIndex].confidence = "api";
     }
     
+    // Scarica automaticamente la cover se disponibile
     if (result.image && result.image.thumb_url) {
       try {
         const resp = await fetchWithCorsFallback(result.image.thumb_url);
@@ -1027,6 +1036,7 @@ async function selectSearchResult(result) {
         }
       } catch (error) {
         console.warn('Download cover automatico fallito', error);
+        // Continua comunque anche se il download della cover fallisce
       }
     }
     
@@ -1048,6 +1058,7 @@ document.getElementById('saveManualMetadata').onclick = () => {
       return;
     }
     
+    // Crea un oggetto metadati manuale
     files[currentMetadataIndex].metadata = {
       name: title,
       image: coverUrl ? { thumb_url: coverUrl } : null,
@@ -1055,11 +1066,13 @@ document.getElementById('saveManualMetadata').onclick = () => {
       manual: true
     };
     
+    // Aggiorna anche la console se specificata
     if (platform) {
       files[currentMetadataIndex].console = platform;
       files[currentMetadataIndex].confidence = "manual";
     }
     
+    // Se è stato fornito un URL per la cover, prova a scaricarla
     if (coverUrl) {
       fetch(coverUrl)
         .then(response => response.blob())
@@ -1115,6 +1128,7 @@ function renderTable(arr) {
     tbody.appendChild(tr);
   });
   
+  // Aggiungi gestori eventi per i checkbox
   document.querySelectorAll('.row-checkbox').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
       const idx = parseInt(this.getAttribute('data-idx'));
@@ -1125,6 +1139,7 @@ function renderTable(arr) {
     });
   });
   
+  // Aggiungi gestori eventi
   document.querySelectorAll('.btn-meta').forEach(b => {
     b.onclick = (ev) => {
       const idx = Number(ev.currentTarget.getAttribute('data-idx'));
@@ -1156,6 +1171,7 @@ function renderTable(arr) {
     };
   });
   
+  // Aggiungi gestore per modifica console
   if (isEditMode) {
     document.querySelectorAll('.console').forEach(el => {
       el.onclick = (ev) => {
@@ -1171,6 +1187,7 @@ function showEditModal(idx, item) {
   currentEditIndex = idx;
   editFileName.textContent = item.cleanName;
   
+  // Popola select con tutte le console
   consoleSelect.innerHTML = '';
   Object.keys(CONSOLE_PATTERNS).sort().forEach(console => {
     const option = document.createElement('option');
@@ -1278,7 +1295,7 @@ document.getElementById('downloadCollection').onclick = () => {
   a.remove();
 };
 
-// Scarica ROM selezionate con nomi puliti
+// Nuova funzionalità: Scarica ROM selezionate con nomi puliti
 downloadSelected.onclick = async function() {
   const selectedFiles = files.filter(f => f.selected);
   if (selectedFiles.length === 0) {
@@ -1286,6 +1303,7 @@ downloadSelected.onclick = async function() {
     return;
   }
 
+  // Usa la File System Access API per scegliere una cartella di destinazione
   if (!window.showDirectoryPicker) {
     alert('Il tuo browser non supporta la selezione della cartella. Usa Chrome o Edge.');
     return;
@@ -1305,8 +1323,11 @@ downloadSelected.onclick = async function() {
       const newFileName = file.cleanName + file.ext;
       
       try {
+        // Crea un nuovo file nella cartella selezionata
         const fileHandle = await directoryHandle.getFileHandle(newFileName, { create: true });
         const writable = await fileHandle.createWritable();
+        
+        // Scrivi il contenuto del file originale
         await writable.write(file.file);
         await writable.close();
         
@@ -1316,6 +1337,7 @@ downloadSelected.onclick = async function() {
         downloadStatus.textContent = `Errore durante il salvataggio di ${newFileName}`;
       }
       
+      // Aggiorna la barra di progresso
       progressBar.style.width = `${((i + 1) / selectedFiles.length) * 100}%`;
     }
     
