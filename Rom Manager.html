@@ -1,0 +1,1341 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ROM Manager (HTML) - Catalogatore Avanzato</title>
+<style>
+  :root {
+    --bg: #0f0f12;
+    --card: #16161b;
+    --muted: #9aa4b2;
+    --accent: #4CAF50;
+    --edit: #FF9800;
+    --warning: #f44336;
+    --confidence-high: #4CAF50;
+    --confidence-medium: #FF9800;
+    --confidence-low: #f44336;
+    --info: #2196F3;
+    --selection: rgba(76, 175, 80, 0.2);
+  }
+  body {
+    font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+    margin: 0;
+    background: linear-gradient(180deg, #0b0b0f, #121217);
+    color: #e6eef6;
+    font-size: 15px;
+  }
+  header {
+    padding: 20px;
+    text-align: center;
+  }
+  h1 {
+    margin: 0;
+    font-size: 22px;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 18px auto;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+  }
+  .row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  input[type=file] {
+    padding: 6px;
+    font-size: 14px;
+  }
+  button {
+    background: var(--accent);
+    border: 0;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-size: 14px;
+  }
+  button:hover {
+    opacity: 0.9;
+  }
+  button.secondary {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--muted);
+  }
+  button.edit {
+    background: var(--edit);
+  }
+  button.warning {
+    background: var(--warning);
+  }
+  button.info {
+    background: var(--info);
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .info {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 6px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 8px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.03);
+    text-align: left;
+    font-size: 14px;
+  }
+  th {
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #0b1220;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    font-size: 13px;
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .search {
+    margin-left: auto;
+  }
+  .small {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .export-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  footer {
+    text-align: center;
+    padding: 10px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .console {
+    font-weight: 600;
+    color: #d1f7e0;
+  }
+  .col-actions {
+    white-space: nowrap;
+  }
+  .edit-mode .console {
+    background: rgba(255, 152, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .cover-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #222;
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-content {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    font-size: 15px;
+  }
+  .modal h3 {
+    margin-top: 0;
+    font-size: 18px;
+  }
+  .modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  .confidence {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: 4px;
+  }
+  .confidence-high {
+    background: var(--confidence-high);
+  }
+  .confidence-medium {
+    background: var(--confidence-medium);
+  }
+  .confidence-low {
+    background: var(--confidence-low);
+  }
+  .console-info {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s;
+    margin-top: 8px;
+  }
+  .metadata-results {
+    margin-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 15px;
+  }
+  .result-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .result-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .result-cover {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #222;
+  }
+  .result-info {
+    flex: 1;
+  }
+  .result-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 15px;
+  }
+  .result-platform {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .manual-input {
+    margin-top: 15px;
+  }
+  .manual-input input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+  }
+  .selected {
+    background-color: var(--selection);
+  }
+  .select-all-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 10px;
+  }
+  .selection-controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    align-items: center;
+  }
+  .download-status {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(255, 152, 0, 0.1);
+    border-radius: 4px;
+    font-size: 14px;
+    display: none;
+  }
+  @media (max-width: 760px) {
+    .row {
+      flex-direction: column;
+    }
+    .search {
+      margin-left: 0;
+    }
+    .selection-controls {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>ROM Manager — versione browser avanzata</h1>
+  <div class="small">Seleziona la cartella con le ROM (browser compatibile: Chrome/Edge/Opera/Brave). Sistema di rilevamento console avanzato basato su emulation.gametechwiki.com</div>
+</header>
+<main class="container">
+  <div class="row">
+    <label>
+      <div class="badge">1) Scegli cartella ROM</div><br>
+      <input id="dirPicker" type="file" webkitdirectory directory multiple />
+    </label>
+    <div style="width:10px"></div>
+    <label>
+      <div class="badge">2) Filtra estensiones (separate da spazio)</div><br>
+      <input id="extFilter" placeholder=".nes .smc .gba .iso" />
+    </label>
+    <div class="search">
+      <input id="search" placeholder="Cerca per nome, console..." />
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="scanBtn">📂 Scansiona cartella</button>
+    <button id="clearBtn" class="secondary">🧹 Pulisci</button>
+    <button id="toggleEdit" class="edit">✏️ Modalità modifica</button>
+    <button id="exportJson" class="secondary">⬇️ Esporta JSON</button>
+    <button id="exportCsv" class="secondary">⬇️ Esporta CSV</button>
+    <button id="downloadCollection">🌐 Scarica collection.html</button>
+    <div class="info">Sistema di rilevamento avanzato con supporto per 100+ estensioni</div>
+  </div>
+
+  <div class="selection-controls">
+    <div class="select-all-container">
+      <input type="checkbox" id="selectAll">
+      <label for="selectAll" class="small">Seleziona tutto</label>
+    </div>
+    <button id="changeSelectedConsole" class="edit" disabled>🎮 Cambia console selezionate</button>
+    <button id="downloadSelected" class="edit" disabled>💾 Scarica selezionate (rinominate)</button>
+    <span id="selectedCount" class="small">0 ROM selezionate</span>
+  </div>
+
+  <div id="downloadStatus" class="download-status"></div>
+
+  <table id="table" aria-live="polite">
+    <thead><tr>
+      <th style="width:36px"></th>
+      <th style="width:36px">#</th>
+      <th>Nome originale</th>
+      <th>Nome pulito</th>
+      <th>Console</th>
+      <th>Est.</th>
+      <th>Dimensione</th>
+      <th>Cover</th>
+      <th class="col-actions">Azioni</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table>
+  <div id="status" class="info"></div>
+  <div id="progressBar" class="progress-bar"></div>
+
+  <div style="margin-top:12px" class="export-row">
+    <label class="small">API GiantBomb: <input id="gbKey" value="f61574b7a9be9caec4e6ec466bef7c37a0728fc3" placeholder="Inserisci API key"/></label>
+    <button id="fetchMetadata">🔍 Ricerca metadati GiantBomb</button>
+    <button id="tryCovers" class="secondary">⬇️ Scarica cover</button>
+    <button id="testApi" class="secondary">🧪 Test API</button>
+    <button id="manualSearchBtn" class="info">🔎 Ricerca manuale</button>
+  </div>
+</main>
+
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <h3>Modifica Console</h3>
+    <p>Seleziona la console corretta per: <strong id="editFileName"></strong></p>
+    <select id="consoleSelect"></select>
+    <div class="modal-buttons">
+      <button id="cancelEdit" class="secondary">Annulla</button>
+      <button id="saveEdit">Salva</button>
+    </div>
+  </div>
+</div>
+
+<div id="multiEditModal" class="modal">
+  <div class="modal-content">
+    <h3>Modifica Console per ROM Selezionate</h3>
+    <p>Stai modificando la console per <strong id="selectedCountText">0</strong> ROM.</p>
+    <select id="multiConsoleSelect"></select>
+    <div class="modal-buttons">
+      <button id="cancelMultiEdit" class="secondary">Annulla</button>
+      <button id="saveMultiEdit">Salva</button>
+    </div>
+  </div>
+</div>
+
+<div id="metadataModal" class="modal">
+  <div class="modal-content">
+    <h3>Ricerca Manuale Metadati</h3>
+    <p>Ricerca manuale per: <strong id="searchFileName"></strong></p>
+    
+    <div class="row">
+      <input id="manualSearchInput" placeholder="Inserisci il nome del gioco..." />
+      <button id="performSearch">Cerca</button>
+    </div>
+    
+    <div id="searchResults" class="metadata-results">
+      <!-- I risultati della ricerca appariranno qui -->
+    </div>
+    
+    <div class="manual-input">
+      <h4>Inserimento Manuale</h4>
+      <input id="manualTitle" placeholder="Titolo del gioco" />
+      <input id="manualCoverUrl" placeholder="URL dell'immagine di copertina" />
+      <input id="manualPlatform" placeholder="Piattaforma" />
+    </div>
+    
+    <div class="modal-buttons">
+      <button id="cancelMetadata" class="secondary">Annulla</button>
+      <button id="saveManualMetadata">Salva Metadati Manuali</button>
+    </div>
+  </div>
+</div>
+
+<footer>ROM Manager Advanced • Basato su dati da emulation.gametechwiki.com</footer>
+
+<script>
+// Configurazione e costanti
+const GIANT_BOMB_API_KEY = "f61574b7a9be9caec4e6ec466bef7c37a0728fc3";
+const GIANT_BOMB_API_URL = "https://www.giantbomb.com/api/search/";
+
+// Lista di proxy CORS alternativi
+const CORS_PROXIES = [
+  "",
+  "https://api.allorigins.win/raw?url=",
+  "https://corsproxy.io/?",
+  "https://cors-anywhere.herokuapp.com/",
+  "https://thingproxy.freeboard.io/fetch/"
+];
+
+// Sistema di rilevamento avanzato basato su emulation.gametechwiki.com
+const CONSOLE_PATTERNS = {
+  "NES": [".nes", ".unf", ".unif", ".fds", ".qd"],
+  "SNES": [".sfc", ".smc", ".fig", ".swc", ".bs"],
+  "Nintendo 64": [".n64", ".v64", ".z64", ".usa", ".jap", ".pal", ".roman"],
+  "GameCube": [".gcm", ".iso", ".gcz"],
+  "Wii": [".wbfs", ".iso", ".wad"],
+  "Wii U": [".wud", ".wux", ".rpx"],
+  "Switch": [".xci", ".nsp"],
+  "Game Boy": [".gb"],
+  "Game Boy Color": [".gbc"],
+  "Game Boy Advance": [".gba", ".agb"],
+  "Nintendo DS": [".nds", ".dsi", ".ids"],
+  "Nintendo 3DS": [".3ds", ".cia", ".cxi"],
+  "PlayStation": [".bin", ".cue", ".img", ".mdf", ".pbp", ".toc", ".cbn", ".m3u", ".ccd", ".chd"],
+  "PlayStation 2": [".iso", ".bin", ".mdf", ".nrg", ".cso", ".gz", ".chd"],
+  "PlayStation 3": [".iso", ".bin", ".mdf", ".pkg"],
+  "PlayStation 4": [".pkg"],
+  "PSP": [".iso", ".cso", ".jso", ".df0", ".dax", ".pbp"],
+  "PlayStation Vita": [".vpk", ".mai"],
+  "Xbox": [".iso", ".xiso"],
+  "Xbox 360": [".iso", ".xex", ".god"],
+  "Xbox One": [".iso", ".xvc"],
+  "Master System": [".sms"],
+  "Genesis / Mega Drive": [".gen", ".md", ".smd", ".bin", ".68k"],
+  "Sega CD / Mega CD": [".cue", ".bin", ".iso", ".chd"],
+  "Game Gear": [".gg"],
+  "Saturn": [".cue", ".bin", ".iso", ".mdf", ".chd"],
+  "Dreamcast": [".cdi", ".gdi", ".chd", ".raw"],
+  "Atari 2600": [".a26", ".bin"],
+  "Atari 5200": [".a52", ".bas", ".xex"],
+  "Atari 7800": [".a78", ".bin"],
+  "Atari Lynx": [".lnx"],
+  "Atari Jaguar": [".j64", ".jag", ".rom"],
+  "TurboGrafx-16 / PC Engine": [".pce", ".sgx"],
+  "PC Engine CD / TurboGrafx-CD": [".cue", ".bin", ".iso", ".chd"],
+  "Commodore 64": [".d64", ".t64", ".prg", ".crt", ".tap", ".g64"],
+  "Amiga": [".adf", ".adz", ".dms", ".ipf", ".hdf"],
+  "MSX": [".rom", ".dsk", ".mx1", ".mx2"],
+  "ZX Spectrum": [".tzx", ".tap", ".z80", ".sna"],
+  "Arcade (MAME)": [".zip", ".7z"],
+  "Neo Geo": [".neo"],
+  "Neo Geo CD": [".cue", ".bin", ".iso", ".chd"],
+  "3DO": [".iso", ".bin", ".cue"],
+  "ColecoVision": [".col", ".rom"],
+  "Intellivision": [".int", ".bin"],
+  "Vectrex": [".vec", ".bin"],
+  "Philips CD-i": [".cdi", ".bin", ".cue"],
+  "PC-FX": [".iso", ".bin", ".cue"],
+  "WonderSwan": [".ws"],
+  "WonderSwan Color": [".wsc"],
+  "Virtual Boy": [".vb"],
+  "Odyssey² / Videopac": [".bin"],
+  "Apple II": [".dsk", ".do", ".po", ".nib"],
+  "MS-DOS": [".exe", ".com", ".bat", ".img", ".ima"],
+  "ScummVM": [".scummvm"]
+};
+
+// Parole chiave per il rilevamento avanzato
+const KEYWORD_HINTS = {
+  'nes': 'NES', 'snes': 'SNES', 'nintendo entertainment system': 'NES', 
+  'super nintendo': 'SNES', 'n64': 'Nintendo 64', 'gamecube': 'GameCube', 
+  'wii u': 'Wii U', 'switch': 'Switch', 'gba': 'Game Boy Advance', 
+  'gbc': 'Game Boy Color', 'gb': 'Game Boy', 'nds': 'Nintendo DS', 
+  '3ds': 'Nintendo 3DS', 'ps1': 'PlayStation', 'ps2': 'PlayStation 2', 
+  'ps3': 'PlayStation 3', 'ps4': 'PlayStation 4', 'psp': 'PSP', 'psx': 'PlayStation',
+  'playstation': 'PlayStation', 'xbox': 'Xbox', 'xbox 360': 'Xbox 360', 
+  'xbox one': 'Xbox One', 'megadrive': 'Genesis / Mega Drive', 
+  'genesis': 'Genesis / Mega Drive', 'sega cd': 'Sega CD / Mega CD', 
+  'megacd': 'Sega CD / Mega CD', 'game gear': 'Game Gear', 'saturn': 'Saturn',
+  'dreamcast': 'Dreamcast', 'atari 2600': 'Atari 2600', 'atari 5200': 'Atari 5200',
+  'atari 7800': 'Atari 7800', 'atari lynx': 'Atari Lynx', 'atari jaguar': 'Atari Jaguar',
+  'pc engine': 'TurboGrafx-16 / PC Engine', 'turbografx': 'TurboGrafx-16 / PC Engine',
+  'tg16': 'TurboGrafx-16 / PC Engine', 'amiga': 'Amiga', 'c64': 'Commodore 64',
+  'commodore 64': 'Commodore 64', 'msx': 'MSX', 'zx spectrum': 'ZX Spectrum',
+  'mame': 'Arcade (MAME)', 'neo geo': 'Neo Geo', '3do': '3DO', 'coleco': 'ColecoVision',
+  'intellivision': 'Intellivision', 'vectrex': 'Vectrex', 'cd-i': 'Philips CD-i',
+  'pcfx': 'PC-FX', 'wonderswan': 'WonderSwan', 'virtual boy': 'Virtual Boy',
+  'odyssey': 'Odyssey² / Videopac', 'apple ii': 'Apple II', 'dos': 'MS-DOS',
+  'scummvm': 'ScummVM'
+};
+
+// Estensioni ambigue con priorità di rilevamento
+const EXTENSION_PRIORITY = {
+  '.chd': ['PlayStation', 'Sega CD / Mega CD', 'Saturn', 'Dreamcast', 'PC Engine CD / TurboGrafx-CD', 'Neo Geo CD'],
+  '.bin': ['PlayStation', 'Sega CD / Mega CD', 'Saturn', 'Dreamcast', '3DO', 'PC Engine CD / TurboGrafx-CD'],
+  '.iso': ['PlayStation', 'PlayStation 2', 'Sega CD / Mega CD', 'Saturn', 'Dreamcast', '3DO', 'GameCube', 'Wii', 'Xbox', 'Xbox 360'],
+  '.img': ['PlayStation', 'MS-DOS', 'Amiga']
+};
+
+// Stato applicazione
+let files = [];
+let isEditMode = false;
+let currentEditIndex = null;
+let currentMetadataIndex = null;
+const tbody = document.querySelector('#table tbody');
+const status = document.getElementById('status');
+const progressBar = document.getElementById('progressBar');
+const editModal = document.getElementById('editModal');
+const consoleSelect = document.getElementById('consoleSelect');
+const editFileName = document.getElementById('editFileName');
+const metadataModal = document.getElementById('metadataModal');
+const searchFileName = document.getElementById('searchFileName');
+const searchResults = document.getElementById('searchResults');
+const manualSearchInput = document.getElementById('manualSearchInput');
+const manualTitle = document.getElementById('manualTitle');
+const manualCoverUrl = document.getElementById('manualCoverUrl');
+const manualPlatform = document.getElementById('manualPlatform');
+const multiEditModal = document.getElementById('multiEditModal');
+const multiConsoleSelect = document.getElementById('multiConsoleSelect');
+const selectedCountText = document.getElementById('selectedCountText');
+const changeSelectedConsole = document.getElementById('changeSelectedConsole');
+const downloadSelected = document.getElementById('downloadSelected');
+const selectAllCheckbox = document.getElementById('selectAll');
+const selectedCountElement = document.getElementById('selectedCount');
+const downloadStatus = document.getElementById('downloadStatus');
+
+// Funzioni di utilità
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]); }
+
+function formatBytes(n){
+  if(n<1024) return n+" B";
+  if(n<1024*1024) return (n/1024).toFixed(1)+" KB";
+  if(n<1024*1024*1024) return (n/1024/1024).toFixed(1)+" MB";
+  return (n/1024/1024/1024).toFixed(2)+" GB";
+}
+
+// Funzione per fare richieste con fallback su vari proxy CORS
+async function fetchWithCorsFallback(url, options = {}) {
+  let lastError = null;
+  
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const proxyUrl = proxy ? proxy + encodeURIComponent(url) : url;
+      const response = await fetch(proxyUrl, {
+        ...options,
+        headers: {
+          'User-Agent': 'ROM-Manager/1.0',
+          ...options.headers
+        }
+      });
+      
+      if (response.ok) {
+        return response;
+      } else {
+        lastError = new Error(`HTTP ${response.status} per proxy: ${proxy}`);
+      }
+    } catch (error) {
+      lastError = error;
+      console.warn(`Proxy ${proxy} fallito, tentativo successivo...`, error);
+    }
+    
+    // Aspetta un po' prima di provare il proxy successivo
+    await new Promise(resolve => setTimeout(resolve, 300));
+  }
+  
+  throw lastError || new Error("Tutti i proxy CORS hanno fallito");
+}
+
+// Rilevamento console avanzato con sistema di punteggio
+function detectConsole(filename, fullpath) {
+  const ext = (filename.match(/(\.[^.]+)$/) || [''])[0].toLowerCase();
+  const lowerPath = fullpath.toLowerCase();
+  let bestMatch = "Sconosciuta";
+  let confidence = "low";
+  let score = 0;
+
+  // 1. Controllo estensioni specifiche
+  for (const [c, exts] of Object.entries(CONSOLE_PATTERNS)) {
+    if (exts.includes(ext)) {
+      bestMatch = c;
+      score += 10;
+      confidence = "medium";
+    }
+  }
+
+  // 2. Controllo parole chiave nel percorso
+  for (const [k, v] of Object.entries(KEYWORD_HINTS)) {
+    if (lowerPath.includes(k)) {
+      bestMatch = v;
+      score += 20;
+      confidence = "high";
+      break;
+    }
+  }
+
+  // 3. Gestione estensiones ambigue
+  if (EXTENSION_PRIORITY[ext]) {
+    for (const console of EXTENSION_PRIORITY[ext]) {
+      for (const [k, v] of Object.entries(KEYWORD_HINTS)) {
+        if (v === console && lowerPath.includes(k)) {
+          bestMatch = console;
+          score += 30;
+          confidence = "high";
+          break;
+        }
+      }
+    }
+  }
+
+  return {
+    name: bestMatch,
+    confidence: confidence,
+    score: score
+  };
+}
+
+function cleanRomName(name) {
+  let s = name.replace(/\.[^.]+$/, '');
+  const patterns = [
+    /\[!\]/gi, /\[a\d*\]/gi, /\[b\d*\]/gi, /\[o\d*\]/gi, /\[h\d*C?\]/gi,
+    /\[f\d*\]/gi, /\[t\d*\]/gi, /\[T[+-]\d*\]/gi, /\[p\d*\]/gi,
+    /\([^)]*\)/gi, /\[.*?\]/gi, /v\d+\.\d+/gi, /Rev\s?\d+/gi,
+    /\bUSA\b|\bEUR\b|\bJPN\b|\bWorld\b|\bBeta\b/gi,
+    /\(.*[Dd][Uu][Pp].*\)/gi, /\(.*[Rr][Ee][Pp][Aa][Cc][Kk].*\)/gi
+  ];
+  patterns.forEach(p => s = s.replace(p, ''));
+  s = s.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return s;
+}
+
+// Aggiorna il conteggio delle ROM selezionate
+function updateSelectedCount() {
+  const selectedFiles = files.filter(f => f.selected);
+  const count = selectedFiles.length;
+  
+  selectedCountElement.textContent = `${count} ROM selezionate`;
+  changeSelectedConsole.disabled = count === 0;
+  downloadSelected.disabled = count === 0;
+  selectAllCheckbox.checked = count > 0 && count === files.length;
+  selectAllCheckbox.indeterminate = count > 0 && count < files.length;
+}
+
+// Gestione selezione/deselezione di tutte le ROM
+selectAllCheckbox.addEventListener('change', function() {
+  const isChecked = this.checked;
+  files.forEach(file => {
+    file.selected = isChecked;
+  });
+  renderTable(files);
+  updateSelectedCount();
+});
+
+// Gestione modifica multipla
+changeSelectedConsole.addEventListener('click', function() {
+  const selectedFiles = files.filter(f => f.selected);
+  if (selectedFiles.length === 0) return;
+  
+  selectedCountText.textContent = selectedFiles.length;
+  
+  // Popola il select con tutte le console
+  multiConsoleSelect.innerHTML = '';
+  Object.keys(CONSOLE_PATTERNS).sort().forEach(console => {
+    const option = document.createElement('option');
+    option.value = console;
+    option.textContent = console;
+    multiConsoleSelect.appendChild(option);
+  });
+  
+  multiEditModal.style.display = 'flex';
+});
+
+// Salva modifica multipla
+document.getElementById('saveMultiEdit').onclick = function() {
+  const newConsole = multiConsoleSelect.value;
+  const selectedFiles = files.filter(f => f.selected);
+  
+  selectedFiles.forEach(file => {
+    file.console = newConsole;
+    file.confidence = "manual";
+  });
+  
+  renderTable(files);
+  updateSelectedCount();
+  status.textContent = `Console modificata per ${selectedFiles.length} ROM`;
+  multiEditModal.style.display = 'none';
+};
+
+// Annulla modifica multipla
+document.getElementById('cancelMultiEdit').onclick = function() {
+  multiEditModal.style.display = 'none';
+};
+
+// Test API GiantBomb
+document.getElementById('testApi').onclick = async () => {
+  const key = document.getElementById('gbKey').value.trim() || GIANT_BOMB_API_KEY;
+  if (!key) {
+    alert('Inserisci la API key di GiantBomb.');
+    return;
+  }
+  
+  status.textContent = 'Test API GiantBomb in corso...';
+  
+  try {
+    const testUrl = `${GIANT_BOMB_API_URL}?api_key=${encodeURIComponent(key)}&format=json&query=Super+Mario&resources=game&field_list=name`;
+    const response = await fetchWithCorsFallback(testUrl);
+    const data = await response.json();
+    
+    if (data.error === "OK") {
+      status.textContent = '✅ API GiantBomb funzionante!';
+    } else {
+      status.textContent = `❌ Errore API: ${data.error}`;
+    }
+  } catch (error) {
+    status.textContent = `❌ Errore di connessione: ${error.message}`;
+    console.error('Test API fallito', error);
+  }
+};
+
+// Gestione eventi
+document.getElementById('scanBtn').onclick = async () => {
+  const input = document.getElementById('dirPicker');
+  if (!input.files || input.files.length === 0) {
+    alert('Seleziona prima una cartella con il pulsante "Scegli cartella".');
+    return;
+  }
+  
+  const extFilter = (document.getElementById('extFilter').value || '').trim().split(/\s+/).filter(Boolean).map(s => s.toLowerCase());
+  files = Array.from(input.files).filter(f => {
+    if (extFilter.length === 0) return true;
+    const e = (f.name.match(/(\.[^.]+)$/) || [''])[0].toLowerCase();
+    return extFilter.includes(e);
+  }).map((f, i) => {
+    const path = f.webkitRelativePath || f.name;
+    const consoleInfo = detectConsole(f.name, path);
+    return {
+      idx: i + 1,
+      originalName: f.name,
+      relativePath: path,
+      cleanName: cleanRomName(f.name),
+      console: consoleInfo.name,
+      confidence: consoleInfo.confidence,
+      ext: (f.name.match(/(\.[^.]+)$/) || [''])[0].toLowerCase(),
+      size: f.size,
+      file: f,
+      coverUrl: null,
+      metadata: null,
+      selected: false
+    };
+  });
+  
+  renderTable(files);
+  updateSelectedCount();
+  status.textContent = `Trovati ${files.length} file. Sistema di rilevamento avanzato attivo.`;
+};
+
+document.getElementById('clearBtn').onclick = () => {
+  document.getElementById('dirPicker').value = null;
+  files = [];
+  renderTable([]);
+  updateSelectedCount();
+  status.textContent = '';
+  progressBar.style.width = '0%';
+  downloadStatus.style.display = 'none';
+};
+
+document.getElementById('search').oninput = function() {
+  const q = this.value.trim().toLowerCase();
+  const filtered = files.filter(f => {
+    return !q || (
+      f.originalName.toLowerCase().includes(q) || 
+      f.cleanName.toLowerCase().includes(q) || 
+      f.console.toLowerCase().includes(q) || 
+      f.relativePath.toLowerCase().includes(q)
+    );
+  });
+  renderTable(filtered);
+};
+
+document.getElementById('toggleEdit').onclick = function() {
+  isEditMode = !isEditMode;
+  this.textContent = isEditMode ? '✏️ Disabilita modifica' : '✏️ Modalità modifica';
+  this.classList.toggle('edit', !isEditMode);
+  this.classList.toggle('warning', isEditMode);
+  document.body.classList.toggle('edit-mode', isEditMode);
+  status.textContent = isEditMode ? 'Modalità modifica attiva - clicca su una console per modificarla' : 'Modalità modifica disattivata';
+};
+
+document.getElementById('cancelEdit').onclick = () => {
+  editModal.style.display = 'none';
+};
+
+document.getElementById('saveEdit').onclick = () => {
+  if (currentEditIndex !== null) {
+    const newConsole = consoleSelect.value;
+    files[currentEditIndex].console = newConsole;
+    files[currentEditIndex].confidence = "manual";
+    renderTable(files);
+    status.textContent = `Console modificata per ${files[currentEditIndex].cleanName}`;
+  }
+  editModal.style.display = 'none';
+};
+
+// Ricerca metadati GiantBomb
+document.getElementById('fetchMetadata').onclick = async () => {
+  const key = document.getElementById('gbKey').value.trim() || GIANT_BOMB_API_KEY;
+  if (!key) {
+    alert('Inserisci la API key di GiantBomb.');
+    return;
+  }
+  
+  status.textContent = 'Ricerca metadati in corso...';
+  progressBar.style.width = '0%';
+  
+  const filesToProcess = files.slice(0, 10);
+  let processed = 0;
+  
+  for (const f of filesToProcess) {
+    try {
+      const q = encodeURIComponent(f.cleanName);
+      const url = `${GIANT_BOMB_API_URL}?api_key=${encodeURIComponent(key)}&format=json&query=${q}&resources=game&field_list=name,image,platforms,deck`;
+      
+      const resp = await fetchWithCorsFallback(url);
+      
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      
+      const data = await resp.json();
+      if (data && data.results && data.results.length > 0) {
+        f.metadata = data.results[0];
+        if (f.metadata.platforms && f.metadata.platforms.length > 0) {
+          f.console = f.metadata.platforms[0].name;
+          f.confidence = "api";
+        }
+        status.textContent = `Trovati metadati per ${f.cleanName}`;
+      }
+    } catch (e) {
+      console.warn('Fetch metadati fallito', e);
+      status.textContent = `Errore durante la ricerca metadati per ${f.cleanName}: ${e.message}`;
+    } finally {
+      processed++;
+      progressBar.style.width = `${(processed / filesToProcess.length) * 100}%`;
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  
+  renderTable(files);
+  status.textContent = 'Ricerca metadati completata';
+  progressBar.style.width = '0%';
+};
+
+// Download cover
+document.getElementById('tryCovers').onclick = async () => {
+  const key = document.getElementById('gbKey').value.trim() || GIANT_BOMB_API_KEY;
+  if (!key) {
+    alert('Inserisci la API key di GiantBomb.');
+    return;
+  }
+  
+  status.textContent = 'Download cover in corso...';
+  progressBar.style.width = '0%';
+  
+  const filesWithMetadata = files.filter(f => f.metadata).slice(0, 5);
+  let processed = 0;
+  
+  for (const f of filesWithMetadata) {
+    try {
+      const thumbUrl = f.metadata.image.thumb_url;
+      if (thumbUrl) {
+        const resp = await fetchWithCorsFallback(thumbUrl);
+        if (resp.ok) {
+          const blob = await resp.blob();
+          f.coverUrl = URL.createObjectURL(blob);
+          status.textContent = `Scaricata cover per ${f.cleanName}`;
+        }
+      }
+    } catch (e) {
+      console.warn('Download cover fallito', e);
+      status.textContent = `Errore durante il download cover per ${f.cleanName}: ${e.message}`;
+    } finally {
+      processed++;
+      progressBar.style.width = `${(processed / filesWithMetadata.length) * 100}%`;
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 300));
+  }
+  
+  renderTable(files);
+  status.textContent = 'Download cover completato';
+  progressBar.style.width = '0%';
+};
+
+// Ricerca manuale metadati
+document.getElementById('manualSearchBtn').onclick = () => {
+  const fileWithoutMetadata = files.findIndex(f => !f.metadata);
+  if (fileWithoutMetadata === -1) {
+    alert('Tutti i file hanno già metadati!');
+    return;
+  }
+  
+  showMetadataModal(fileWithoutMetadata);
+};
+
+// Mostra modale per ricerca manuale
+function showMetadataModal(idx) {
+  currentMetadataIndex = idx;
+  const item = files[idx];
+  searchFileName.textContent = item.cleanName;
+  manualSearchInput.value = item.cleanName;
+  manualTitle.value = item.cleanName;
+  manualPlatform.value = item.console;
+  
+  searchResults.innerHTML = '';
+  metadataModal.style.display = 'flex';
+  performSearchRequest();
+}
+
+// Esegui ricerca quando si clicca sul pulsante
+document.getElementById('performSearch').onclick = performSearchRequest;
+
+async function performSearchRequest() {
+  const key = document.getElementById('gbKey').value.trim() || GIANT_BOMB_API_KEY;
+  const query = manualSearchInput.value.trim();
+  
+  if (!query) {
+    alert('Inserisci un termine di ricerca');
+    return;
+  }
+  
+  searchResults.innerHTML = '<div class="small">Ricerca in corso...</div>';
+  
+  try {
+    const q = encodeURIComponent(query);
+    const url = `${GIANT_BOMB_API_URL}?api_key=${encodeURIComponent(key)}&format=json&query=${q}&resources=game&field_list=name,image,platforms,deck`;
+    
+    const resp = await fetchWithCorsFallback(url);
+    
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    
+    const data = await resp.json();
+    
+    if (data && data.results && data.results.length > 0) {
+      displaySearchResults(data.results);
+    } else {
+      searchResults.innerHTML = '<div class="small">Nessun risultato trovato</div>';
+    }
+  } catch (error) {
+    console.error('Ricerca fallita', error);
+    searchResults.innerHTML = `<div class="small">Errore durante la ricerca: ${error.message}</div>`;
+  }
+}
+
+// Mostra i risultati della ricerca
+function displaySearchResults(results) {
+  searchResults.innerHTML = '';
+  
+  results.forEach(result => {
+    const platform = result.platforms && result.platforms.length > 0 
+      ? result.platforms[0].name 
+      : 'Piattaforma sconosciuta';
+    
+    const resultItem = document.createElement('div');
+    resultItem.className = 'result-item';
+    resultItem.innerHTML = `
+      <img class="result-cover" src="${result.image?.thumb_url || ''}" alt="${result.name}" onerror="this.style.display='none'">
+      <div class="result-info">
+        <div class="result-title">${escapeHtml(result.name)}</div>
+        <div class="result-platform">${escapeHtml(platform)}</div>
+        <div class="small">${escapeHtml(result.deck || 'Nessuna descrizione')}</div>
+      </div>
+    `;
+    
+    resultItem.onclick = () => {
+      selectSearchResult(result);
+    };
+    
+    searchResults.appendChild(resultItem);
+  });
+}
+
+// MODIFICATO: Seleziona un risultato dalla ricerca con download automatico della cover
+async function selectSearchResult(result) {
+  if (currentMetadataIndex !== null) {
+    files[currentMetadataIndex].metadata = result;
+    
+    if (result.platforms && result.platforms.length > 0) {
+      files[currentMetadataIndex].console = result.platforms[0].name;
+      files[currentMetadataIndex].confidence = "api";
+    }
+    
+    if (result.image && result.image.thumb_url) {
+      try {
+        const resp = await fetchWithCorsFallback(result.image.thumb_url);
+        if (resp.ok) {
+          const blob = await resp.blob();
+          files[currentMetadataIndex].coverUrl = URL.createObjectURL(blob);
+        }
+      } catch (error) {
+        console.warn('Download cover automatico fallito', error);
+      }
+    }
+    
+    status.textContent = `Metadati aggiornati per ${files[currentMetadataIndex].cleanName}`;
+    renderTable(files);
+    metadataModal.style.display = 'none';
+  }
+}
+
+// Salva metadati manuali
+document.getElementById('saveManualMetadata').onclick = () => {
+  if (currentMetadataIndex !== null) {
+    const title = manualTitle.value.trim();
+    const coverUrl = manualCoverUrl.value.trim();
+    const platform = manualPlatform.value.trim();
+    
+    if (!title) {
+      alert('Inserisci almeno un titolo');
+      return;
+    }
+    
+    files[currentMetadataIndex].metadata = {
+      name: title,
+      image: coverUrl ? { thumb_url: coverUrl } : null,
+      platforms: platform ? [{ name: platform }] : null,
+      manual: true
+    };
+    
+    if (platform) {
+      files[currentMetadataIndex].console = platform;
+      files[currentMetadataIndex].confidence = "manual";
+    }
+    
+    if (coverUrl) {
+      fetch(coverUrl)
+        .then(response => response.blob())
+        .then(blob => {
+          files[currentMetadataIndex].coverUrl = URL.createObjectURL(blob);
+          renderTable(files);
+        })
+        .catch(error => {
+          console.warn('Impossibile scaricare la cover manuale', error);
+          renderTable(files);
+        });
+    } else {
+      renderTable(files);
+    }
+    
+    status.textContent = `Metadati manuali salvati per ${files[currentMetadataIndex].cleanName}`;
+    metadataModal.style.display = 'none';
+  }
+};
+
+// Annulla modale metadati
+document.getElementById('cancelMetadata').onclick = () => {
+  metadataModal.style.display = 'none';
+};
+
+// Rendering tabella
+function renderTable(arr) {
+  tbody.innerHTML = '';
+  arr.forEach((f, i) => {
+    const tr = document.createElement('tr');
+    if (f.selected) {
+      tr.classList.add('selected');
+    }
+    tr.innerHTML = `
+      <td><input type="checkbox" class="row-checkbox" data-idx="${i}" ${f.selected ? 'checked' : ''}></td>
+      <td>${i+1}</td>
+      <td title="${escapeHtml(f.relativePath)}">${escapeHtml(f.originalName)}</td>
+      <td>${escapeHtml(f.cleanName)}</td>
+      <td class="console" data-idx="${i}">${escapeHtml(f.console)}
+        <div class="console-info">
+          Rilevamento: <span class="confidence confidence-${f.confidence}" title="${f.confidence === 'high' ? 'Alta confidenza' : f.confidence === 'medium' ? 'Media confidenza' : 'Bassa confidenza'}"></span>
+          ${f.confidence === 'manual' ? '(Modificato manualmente)' : f.confidence === 'api' ? '(Da API GiantBomb)' : ''}
+        </div>
+      </td>
+      <td>${escapeHtml(f.ext)}</td>
+      <td>${formatBytes(f.size)}</td>
+      <td>${f.coverUrl ? `<img class="cover-thumb" src="${f.coverUrl}" alt="Cover">` : 'N/A'}</td>
+      <td class="col-actions">
+        <button data-idx="${i}" class="btn-meta">📄 metadata</button>
+        <button data-idx="${i}" class="btn-download">⬇️ file</button>
+        <button data-idx="${i}" class="btn-manual-search">🔍 manuale</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  
+  document.querySelectorAll('.row-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const idx = parseInt(this.getAttribute('data-idx'));
+      files[idx].selected = this.checked;
+      this.checked ? this.parentElement.parentElement.classList.add('selected') 
+                   : this.parentElement.parentElement.classList.remove('selected');
+      updateSelectedCount();
+    });
+  });
+  
+  document.querySelectorAll('.btn-meta').forEach(b => {
+    b.onclick = (ev) => {
+      const idx = Number(ev.currentTarget.getAttribute('data-idx'));
+      const item = arr[idx];
+      downloadMetadata(item);
+    };
+  });
+  
+  document.querySelectorAll('.btn-download').forEach(b => {
+    b.onclick = async (ev) => {
+      const idx = Number(ev.currentTarget.getAttribute('data-idx'));
+      const item = arr[idx];
+      const blob = item.file;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = item.originalName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    };
+  });
+  
+  document.querySelectorAll('.btn-manual-search').forEach(b => {
+    b.onclick = (ev) => {
+      const idx = Number(ev.currentTarget.getAttribute('data-idx'));
+      showMetadataModal(idx);
+    };
+  });
+  
+  if (isEditMode) {
+    document.querySelectorAll('.console').forEach(el => {
+      el.onclick = (ev) => {
+        const idx = Number(ev.currentTarget.getAttribute('data-idx'));
+        showEditModal(idx, arr[idx]);
+      };
+    });
+  }
+}
+
+// Mostra modale modifica
+function showEditModal(idx, item) {
+  currentEditIndex = idx;
+  editFileName.textContent = item.cleanName;
+  
+  consoleSelect.innerHTML = '';
+  Object.keys(CONSOLE_PATTERNS).sort().forEach(console => {
+    const option = document.createElement('option');
+    option.value = console;
+    option.textContent = console;
+    if (console === item.console) option.selected = true;
+    consoleSelect.appendChild(option);
+  });
+  
+  editModal.style.display = 'flex';
+}
+
+// Download metadata
+function downloadMetadata(item) {
+  const meta = {
+    name: item.cleanName,
+    original: item.originalName,
+    relativePath: item.relativePath,
+    console: item.console,
+    confidence: item.confidence,
+    ext: item.ext,
+    size: item.size,
+    coverUrl: item.coverUrl,
+    metadata: item.metadata,
+    processed_date: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(meta, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${item.cleanName || 'metadata'}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+// Esporta JSON/CSV
+document.getElementById('exportJson').onclick = () => {
+  const arr = files.map(f => ({
+    name: f.cleanName, 
+    original: f.originalName, 
+    path: f.relativePath, 
+    console: f.console, 
+    confidence: f.confidence,
+    ext: f.ext, 
+    size: f.size,
+    coverUrl: f.coverUrl,
+    metadata: f.metadata
+  }));
+  const blob = new Blob([JSON.stringify(arr, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'rom_collection.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+
+document.getElementById('exportCsv').onclick = () => {
+  const rows = [['name', 'original', 'path', 'console', 'confidence', 'ext', 'size', 'coverUrl']];
+  files.forEach(f => rows.push([
+    f.cleanName, f.originalName, f.relativePath, f.console, f.confidence, f.ext, f.size, f.coverUrl
+  ]));
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'rom_collection.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+
+// Genera collection.html
+document.getElementById('downloadCollection').onclick = () => {
+  const byConsole = {};
+  files.forEach(f => {
+    if (!byConsole[f.console]) byConsole[f.console] = [];
+    byConsole[f.console].push(f);
+  });
+  
+  let html = `<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Collezione ROM</title>
+  <style>body{font-family:Arial,sans-serif;background:#111;color:#fff;padding:18px} .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}.card{background:#1b1b1b;padding:10px;border-radius:8px}.cover{width:100%;height:200px;object-fit:cover;border-radius:4px;background:#222}</style></head><body>`;
+  html += `<h1>Collezione ROM - generata da ROM Manager</h1>`;
+  
+  for (const c of Object.keys(byConsole).sort()) {
+    html += `<h2>${escapeHtml(c)} (${byConsole[c].length})</h2><div class="grid">`;
+    byConsole[c].forEach(g => {
+      html += `<div class="card">
+        ${g.coverUrl ? `<img class="cover" src="${g.coverUrl}" alt="${escapeHtml(g.cleanName)}">` : ''}
+        <div style="font-weight:700;margin-top:8px">${escapeHtml(g.cleanName)}</div>
+        <div class="small" style="color:#aab">${escapeHtml(g.originalName)}</div>
+        <div style="margin-top:6px">Ext: ${escapeHtml(g.ext)} · ${formatBytes(g.size)}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  html += `</body></html>`;
+  
+  const blob = new Blob([html], {type: 'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'collection.html';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+
+// Scarica ROM selezionate con nomi puliti
+downloadSelected.onclick = async function() {
+  const selectedFiles = files.filter(f => f.selected);
+  if (selectedFiles.length === 0) {
+    alert('Nessuna ROM selezionata.');
+    return;
+  }
+
+  if (!window.showDirectoryPicker) {
+    alert('Il tuo browser non supporta la selezione della cartella. Usa Chrome o Edge.');
+    return;
+  }
+
+  try {
+    downloadStatus.style.display = 'block';
+    downloadStatus.textContent = 'Seleziona la cartella di destinazione...';
+    
+    const directoryHandle = await window.showDirectoryPicker();
+    
+    downloadStatus.textContent = 'Download in corso...';
+    progressBar.style.width = '0%';
+    
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      const newFileName = file.cleanName + file.ext;
+      
+      try {
+        const fileHandle = await directoryHandle.getFileHandle(newFileName, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(file.file);
+        await writable.close();
+        
+        downloadStatus.textContent = `Scaricato ${i+1}/${selectedFiles.length}: ${newFileName}`;
+      } catch (error) {
+        console.error(`Errore durante il salvataggio di ${newFileName}:`, error);
+        downloadStatus.textContent = `Errore durante il salvataggio di ${newFileName}`;
+      }
+      
+      progressBar.style.width = `${((i + 1) / selectedFiles.length) * 100}%`;
+    }
+    
+    downloadStatus.textContent = `Download completato! ${selectedFiles.length} file salvati con nomi puliti.`;
+    status.textContent = `Download completato! ${selectedFiles.length} file salvati.`;
+    
+    setTimeout(() => {
+      progressBar.style.width = '0%';
+      downloadStatus.style.display = 'none';
+    }, 5000);
+  } catch (error) {
+    if (error.name !== 'AbortError') {
+      console.error('Errore durante la selezione della cartella:', error);
+      downloadStatus.textContent = 'Operazione annullata o errore durante la selezione della cartella.';
+      setTimeout(() => {
+        downloadStatus.style.display = 'none';
+      }, 3000);
+    }
+  }
+};
+</script>
+</body>
+</html>
