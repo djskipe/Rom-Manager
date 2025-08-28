@@ -182,17 +182,12 @@ Questo è un progetto open source. Contributi benvenuti per:
 - Interface optimizations / Ottimizzazioni interfaccia
 - Bug fixes / Correzioni bug
 
-## License / Licenza
-
-Released under MIT License. Use freely for personal and commercial projects.
-Rilasciato sotto licenza MIT. Utilizza liberamente per progetti personali e commerciali.
 
 ## Credits / Crediti
 
 - **Console data / Dati console**: emulation.gametechwiki.com
 - **Game metadata / Metadati giochi**: GiantBomb API
-- **Inspiration / Ispirazione**: Italian retro gaming community / Community retro gaming italiana
 
 ---
 
-*Developed with passion for preserving gaming history / Sviluppato con passione per preservare la storia del gaming*
+
